@@ -7,6 +7,8 @@ import prisma from '@/lib/prismadb';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+// Teste de commit e push para atualização no GitHub
+
 export async function POST(request: Request) {
   try {
     console.log('Recebido cadastro:', request);
