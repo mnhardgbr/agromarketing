@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
-import prisma from '@/lib/prisma';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prismadb';
 
 // GET /api/reviews - Obter avaliações de um anúncio
 export async function GET(request: Request) {
