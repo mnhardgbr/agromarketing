@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -39,6 +39,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   animals       Animal[]
+  cart          Cart?
+  orders        Order[]
 }
 
 model Account {
@@ -95,6 +97,8 @@ model Listing {
   images           ListingImage[]
   conversations    Conversation[]
   reviews          Review[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
 }
 
 model ListingImage {
@@ -169,6 +173,30 @@ model Animal {
   @@index([userId])
 }
 
+model Cart {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([userId])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, listingId])
+}
+
 enum Role {
   USER
   ADMIN
@@ -178,4 +206,44 @@ enum Status {
   ACTIVE
   SOLD
   INACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  status        OrderStatus @default(PENDING)
+  totalAmount   Float
+  shippingAddress String
+  shippingCity   String
+  shippingState  String
+  shippingZipCode String
+  paymentId     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orderId, listingId])
 }

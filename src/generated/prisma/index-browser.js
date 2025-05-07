@@ -239,6 +239,46 @@ exports.Prisma.AnimalScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CartScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CartItemScalarFieldEnum = {
+  id: 'id',
+  cartId: 'cartId',
+  listingId: 'listingId',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  totalAmount: 'totalAmount',
+  shippingAddress: 'shippingAddress',
+  shippingCity: 'shippingCity',
+  shippingState: 'shippingState',
+  shippingZipCode: 'shippingZipCode',
+  paymentId: 'paymentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  listingId: 'listingId',
+  quantity: 'quantity',
+  price: 'price',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -264,6 +304,14 @@ exports.Status = exports.$Enums.Status = {
   INACTIVE: 'INACTIVE'
 };
 
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Account: 'Account',
@@ -275,7 +323,11 @@ exports.Prisma.ModelName = {
   ChatMessage: 'ChatMessage',
   Notification: 'Notification',
   Review: 'Review',
-  Animal: 'Animal'
+  Animal: 'Animal',
+  Cart: 'Cart',
+  CartItem: 'CartItem',
+  Order: 'Order',
+  OrderItem: 'OrderItem'
 };
 
 /**

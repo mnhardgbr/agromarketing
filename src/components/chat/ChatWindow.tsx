@@ -8,25 +8,51 @@ import Message from './Message';
 import { useChat } from '@/hooks/useChat';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 
-interface User {
+// Prisma types
+interface PrismaUser {
   id: string;
   name: string;
   email: string;
-  image: string;
+  emailVerified?: Date | null;
+  image: string | null;
+  phone?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-interface Message {
+interface ChatMessage {
   id: string;
   content: string;
-  createdAt: string;
-  sender: User;
-  seen: boolean;
+  read: boolean;
+  createdAt: Date;
+  senderId: string;
+  receiverId: string;
+  conversationId: string;
+  sender: PrismaUser;
+  receiver: PrismaUser;
 }
 
 interface Conversation {
   id: string;
-  users: User[];
-  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
+  listingId: string;
+  users: PrismaUser[];
+  messages: ChatMessage[];
+}
+
+// Firebase types (from useChat)
+interface FirebaseMessage {
+  id: string;
+  content: string;
+  createdAt: string;
+  sender: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+  };
+  seen: boolean;
 }
 
 interface ChatWindowProps {
@@ -42,9 +68,16 @@ export default function ChatWindow({ conversationId }: ChatWindowProps) {
 
   useEffect(() => {
     const fetchConversation = async () => {
-      const data = await getConversationById(conversationId);
-      setConversation(data);
-      setLoading(false);
+      try {
+        const data = await getConversationById(conversationId);
+        if (data) {
+          setConversation(data as Conversation);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching conversation:', error);
+        setLoading(false);
+      }
     };
 
     fetchConversation();
@@ -92,11 +125,11 @@ export default function ChatWindow({ conversationId }: ChatWindowProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {messages.map((message: FirebaseMessage) => (
           <Message
             key={message.id}
             message={message}
-            isOwn={message.sender.id !== otherUser.id}
+            isOwn={message.sender.id === otherUser.id}
           />
         ))}
         <div ref={messagesEndRef} />
