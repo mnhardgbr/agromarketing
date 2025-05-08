@@ -8,7 +8,7 @@ import { ref, push, serverTimestamp } from 'firebase/database';
 // Get all messages for a conversation
 export async function GET(
   request: Request,
-  context: { params: { conversationId: string } }
+  { params }: { params: { conversationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(
 
     const messages = await prisma.chatMessage.findMany({
       where: {
-        conversationId: context.params.conversationId,
+        conversationId: params.conversationId,
       },
       include: {
         sender: true,
@@ -39,7 +39,7 @@ export async function GET(
 // Send a new message
 export async function POST(
   request: Request,
-  context: { params: { conversationId: string } }
+  { params }: { params: { conversationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,7 +58,7 @@ export async function POST(
     // Get conversation
     const conversation = await prisma.conversation.findUnique({
       where: {
-        id: context.params.conversationId,
+        id: params.conversationId,
       },
       include: {
         users: true,
@@ -93,7 +93,7 @@ export async function POST(
     const message = await prisma.chatMessage.create({
       data: {
         content,
-        conversationId: context.params.conversationId,
+        conversationId: params.conversationId,
         senderId: currentUser.id,
         receiverId: otherUser.id,
       },
@@ -105,7 +105,7 @@ export async function POST(
     // Update conversation timestamp
     await prisma.conversation.update({
       where: {
-        id: context.params.conversationId,
+        id: params.conversationId,
       },
       data: {
         updatedAt: new Date(),
@@ -113,7 +113,7 @@ export async function POST(
     });
 
     // Save message to Firebase
-    const messagesRef = ref(database, `messages/${context.params.conversationId}`);
+    const messagesRef = ref(database, `messages/${params.conversationId}`);
     await push(messagesRef, {
       ...message,
       createdAt: serverTimestamp(),
