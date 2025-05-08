@@ -48,7 +48,11 @@ interface Listing {
   reviews: Review[];
 }
 
-export default function ListingDetails({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: { id: string }
+}
+
+export default function ListingDetails({ params }: PageProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [listing, setListing] = useState<Listing | null>(null);
