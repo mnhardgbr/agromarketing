@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 // PATCH /api/reviews/[reviewId] - Atualizar avaliação
 export async function PATCH(
   request: Request,
-  { params }: { params: { reviewId: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -119,9 +119,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
 
+    const reviewId = context?.params?.reviewId;
     const review = await prisma.review.findUnique({
       where: {
-        id: params.reviewId,
+        id: reviewId,
       },
     });
 
@@ -138,7 +139,7 @@ export async function PATCH(
 
     const updatedReview = await prisma.review.update({
       where: {
-        id: params.reviewId,
+        id: reviewId,
       },
       data: {
         rating,
@@ -164,7 +165,7 @@ export async function PATCH(
 // DELETE /api/reviews/[reviewId] - Deletar avaliação
 export async function DELETE(
   request: Request,
-  { params }: { params: { reviewId: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -180,9 +181,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
 
+    const reviewId = context?.params?.reviewId;
     const review = await prisma.review.findUnique({
       where: {
-        id: params.reviewId,
+        id: reviewId,
       },
     });
 
@@ -199,7 +201,7 @@ export async function DELETE(
 
     await prisma.review.delete({
       where: {
-        id: params.reviewId,
+        id: reviewId,
       },
     });
 
