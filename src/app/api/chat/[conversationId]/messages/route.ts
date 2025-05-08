@@ -8,7 +8,7 @@ import { ref, push, serverTimestamp } from 'firebase/database';
 // Get all messages for a conversation
 export async function GET(
   request: Request,
-  context: { params: Record<string, string> }
+  context: { params: { conversationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -39,7 +39,7 @@ export async function GET(
 // Send a new message
 export async function POST(
   request: Request,
-  context: { params: Record<string, string> }
+  context: { params: { conversationId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
