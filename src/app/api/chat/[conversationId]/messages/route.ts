@@ -8,7 +8,7 @@ import { ref, push, serverTimestamp } from 'firebase/database';
 // Get all messages for a conversation
 export async function GET(
   request: Request,
-  { params }: { params: { conversationId: string } }
+  context: { params: Record<string, string> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,35 +19,13 @@ export async function GET(
 
     const messages = await prisma.chatMessage.findMany({
       where: {
-        conversationId: params.conversationId,
+        conversationId: context.params.conversationId,
       },
       include: {
         sender: true,
-        seen: true,
       },
       orderBy: {
         createdAt: 'asc',
-      },
-    });
-
-    // Mark unread messages as read
-    await prisma.chatMessage.updateMany({
-      where: {
-        conversationId: params.conversationId,
-        NOT: {
-          seen: {
-            some: {
-              email: session.user.email,
-            },
-          },
-        },
-      },
-      data: {
-        seen: {
-          connect: {
-            email: session.user.email,
-          },
-        },
       },
     });
 
@@ -61,7 +39,7 @@ export async function GET(
 // Send a new message
 export async function POST(
   request: Request,
-  { params }: { params: { conversationId: string } }
+  context: { params: Record<string, string> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -80,7 +58,7 @@ export async function POST(
     // Get conversation
     const conversation = await prisma.conversation.findUnique({
       where: {
-        id: params.conversationId,
+        id: context.params.conversationId,
       },
       include: {
         users: true,
@@ -115,20 +93,19 @@ export async function POST(
     const message = await prisma.chatMessage.create({
       data: {
         content,
-        conversationId: params.conversationId,
+        conversationId: context.params.conversationId,
         senderId: currentUser.id,
         receiverId: otherUser.id,
       },
       include: {
         sender: true,
-        seen: true,
       },
     });
 
     // Update conversation timestamp
     await prisma.conversation.update({
       where: {
-        id: params.conversationId,
+        id: context.params.conversationId,
       },
       data: {
         updatedAt: new Date(),
@@ -136,7 +113,7 @@ export async function POST(
     });
 
     // Save message to Firebase
-    const messagesRef = ref(database, `messages/${params.conversationId}`);
+    const messagesRef = ref(database, `messages/${context.params.conversationId}`);
     await push(messagesRef, {
       ...message,
       createdAt: serverTimestamp(),
