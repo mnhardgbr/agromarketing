@@ -5,12 +5,13 @@ import prisma from "@/lib/prismadb";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = context?.params?.id;
     const reviews = await prisma.review.findMany({
       where: {
-        listingId: params.id,
+        listingId: id,
       },
       include: {
         user: {
@@ -34,9 +35,10 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = context?.params?.id;
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -51,7 +53,7 @@ export async function POST(
 
     // Check if listing exists
     const listing = await prisma.listing.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: { userId: true },
     });
 
@@ -77,7 +79,7 @@ export async function POST(
     const existingReview = await prisma.review.findFirst({
       where: {
         userId: currentUser.id,
-        listingId: params.id,
+        listingId: id,
       },
     });
 
@@ -90,7 +92,7 @@ export async function POST(
         rating,
         comment,
         userId: currentUser.id,
-        listingId: params.id,
+        listingId: id,
       },
       include: {
         user: {
