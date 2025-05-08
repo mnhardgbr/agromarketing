@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 // PATCH /api/notifications/[notificationId] - Marcar notificação como lida
 export async function PATCH(
   request: Request,
-  { params }: { params: { notificationId: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,9 +65,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
+    const notificationId = context?.params?.notificationId;
     const notification = await prisma.notification.update({
       where: {
-        id: params.notificationId
+        id: notificationId
       },
       data: {
         read: true
@@ -84,7 +85,7 @@ export async function PATCH(
 // DELETE /api/notifications/[notificationId] - Deletar notificação
 export async function DELETE(
   request: Request,
-  { params }: { params: { notificationId: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -92,9 +93,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
+    const notificationId = context?.params?.notificationId;
     await prisma.notification.delete({
       where: {
-        id: params.notificationId
+        id: notificationId
       }
     });
 
