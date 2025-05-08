@@ -7,7 +7,7 @@ import { ref, update, remove } from 'firebase/database';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,6 +16,7 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const id = context?.params?.id;
     const body = await request.json();
     const { read } = body;
 
@@ -26,7 +27,7 @@ export async function PATCH(
     // Update notification in PostgreSQL
     const notification = await prisma.notification.update({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.email,
       },
       data: {
@@ -35,7 +36,7 @@ export async function PATCH(
     });
 
     // Update notification in Firebase
-    const notificationRef = ref(database, `notifications/${session.user.email}/${params.id}`);
+    const notificationRef = ref(database, `notifications/${session.user.email}/${id}`);
     await update(notificationRef, {
       read,
     });
@@ -49,7 +50,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,16 +59,17 @@ export async function DELETE(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const id = context?.params?.id;
     // Delete notification from PostgreSQL
     await prisma.notification.delete({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.email,
       },
     });
 
     // Delete notification from Firebase
-    const notificationRef = ref(database, `notifications/${session.user.email}/${params.id}`);
+    const notificationRef = ref(database, `notifications/${session.user.email}/${id}`);
     await remove(notificationRef);
 
     return new NextResponse('OK');
