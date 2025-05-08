@@ -5,7 +5,8 @@ import prisma from '@/lib/prismadb';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-export default async function AnimalDetailsPage({ params }: { params: { id: string } }) {
+export default async function AnimalDetailsPage(props: any) {
+  const { params } = props;
   const animal = await prisma.animal.findUnique({
     where: {
       id: params.id,
