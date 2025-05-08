@@ -7,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -24,10 +24,12 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const id = context?.params?.id;
+
     // Check if listing exists and belongs to user
     const listing = await prisma.listing.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id,
       },
     });
@@ -45,7 +47,7 @@ export async function POST(
     const uploadedImages = await Promise.all(
       images.map(async (image) => {
         // Create a unique filename
-        const filename = `${params.id}/${Date.now()}-${image.name}`;
+        const filename = `${id}/${Date.now()}-${image.name}`;
         const storageRef = ref(storage, `listings/${filename}`);
 
         // Upload the file
@@ -58,7 +60,7 @@ export async function POST(
         const savedImage = await prisma.listingImage.create({
           data: {
             url: downloadURL,
-            listingId: params.id,
+            listingId: id,
           },
         });
 
