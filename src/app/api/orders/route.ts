@@ -114,7 +114,7 @@ export async function POST(request: Request) {
 // PATCH /api/orders/[orderId] - Atualizar status do pedido
 export async function PATCH(
   request: Request,
-  { params }: { params: { orderId: string } }
+  context: any
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -123,10 +123,11 @@ export async function PATCH(
     }
 
     const { status, paymentId } = await request.json();
+    const orderId = context?.params?.orderId;
 
     const order = await prisma.order.update({
       where: {
-        id: params.orderId
+        id: orderId
       },
       data: {
         status,
